@@ -6,11 +6,6 @@
 #pragma once
 
 
-#include "unique_type_concept.h"
-#include "unique_type_tuple.h"
-
-#include <any>
-#include <tuple>
 #include <type_traits>
 
 
@@ -20,8 +15,6 @@ namespace type_util
 
 /**
  * Returns `std::true_type` if `T` is contains a nested type `__IS_TYPE_MAP_ELEMENT__` that is an alias of `std::true_type`
- *
- * This will allow for other types of elements to be processed by `type_map` in the future if needed
  */
 template<class T>
 using __is_type_map_element__ = std::is_same<typename T::__IS_TYPE_MAP_ELEMENT__::type, std::true_type>;
