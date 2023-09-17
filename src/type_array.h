@@ -6,8 +6,6 @@
 #pragma once
 
 
-#include "type_map.h"
-
 #include <tuple>
 
 
@@ -25,8 +23,17 @@ private:
 
 public:
 
-    template<std::size_t TYPE_INDEX>
-    using at = typename std::tuple_element<TYPE_INDEX, _TYPE_LIST_TUPLE>::type;
+    /**
+     * Get type at index
+     */
+    template<std::size_t INDEX>
+    using at = typename std::tuple_element<INDEX, _TYPE_LIST_TUPLE>::type;
+
+    /**
+     * Convenience function that allows call sight to construct an instance of the type associated with the given key
+     */
+    template<auto INDEX, class ... ARGS>
+    constexpr static auto make(ARGS ... args) -> at<INDEX> { return at<INDEX>(args...); }
 };
 
 
