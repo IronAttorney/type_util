@@ -12,6 +12,8 @@ add_library(
         src/same_type_concept.h
         src/type_array.h
         src/type_map.h
+        src/type_pair.h
+        src/type_value_pair.h
         src/unique_type_concept.h
         src/unique_type_tuple.h
         src/unique_value_concept.h

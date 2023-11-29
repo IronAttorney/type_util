@@ -8,6 +8,7 @@
 
 #include "same_type_concept.h"
 #include "type_pair.h"
+#include "type_value_pair.h"
 #include "unique_type_tuple.h"
 #include "unique_value_concept.h"
 #include "value_type_pair.h"
@@ -100,14 +101,32 @@ public:
      */
     template<auto KEY_VALUE>
     using at = typename std::tuple_element<key_index<KEY_VALUE>, ITEM_TYPE_TUPLE>::type;
+};
 
-//    /**
-//     * TODO: `internal compiler error: Segmentation fault`
-//     *
-//     * Convenience function that allows call sight to construct an instance of the type associated with the given key
-//     */
-//    template<auto KEY_VALUE, class ... ARGS>
-//    constexpr static auto make(ARGS ... args) -> at<KEY_VALUE> { return at<KEY_VALUE>(args...); }
+
+template<class ... ELEMENT_LIST> requires std::conjunction<is_type_value_pair<ELEMENT_LIST>...>::value
+                                          && are_same_types<decltype(ELEMENT_LIST::second)...>
+struct type_map<ELEMENT_LIST...>
+{
+
+private:
+
+    using KEY_TYPE_TUPLE = unique_type_tuple<typename ELEMENT_LIST::first...>;
+    static constexpr std::array _item_value_array{ ELEMENT_LIST::second... };
+
+public:
+
+    /**
+     * Returns index of given key
+     */
+    template<class KEY_TYPE>
+    static constexpr std::size_t key_index = KEY_TYPE_TUPLE::template get_type_index<KEY_TYPE>;
+
+    /**
+     * Get value associate with key
+     */
+    template<class KEY_TYPE>
+    static constexpr auto at = _item_value_array.at(key_index<KEY_TYPE>);
 };
 
 
