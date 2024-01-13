@@ -13,6 +13,8 @@
 #include "unique_value_concept.h"
 #include "value_type_pair.h"
 
+#include <algorithm>
+#include <array>
 #include <tuple>
 #include <type_traits>
 
