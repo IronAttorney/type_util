@@ -23,7 +23,7 @@ struct type_value_pair
 };
 
 /**
- * Returns `std::true_type` if `T` is contains a nested type `__IS_VALUE_TO_TYPE_MAP_ELEMENT__` that is an alias of `std::true_type`
+ * Returns `std::true_type` if `T` contains a nested type `_is_type_value_pair` that is an alias of `std::true_type`
  */
 template<class T>
 using is_type_value_pair = typename T::_is_type_value_pair;

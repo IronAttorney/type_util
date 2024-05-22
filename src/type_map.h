@@ -11,6 +11,7 @@
 #include "type_value_pair.h"
 #include "unique_type_tuple.h"
 #include "unique_value_concept.h"
+#include "value_pair.h"
 #include "value_type_pair.h"
 
 #include <algorithm>
@@ -28,7 +29,7 @@ struct type_map;
 
 
 /**
- * Maps from one type to another type at compile time.
+ * Maps from one type to another at compile time.
  *
  * Elements in the list each represent a single mapping from one type to another.
  *
@@ -69,6 +70,81 @@ public:
 
 
 /**
+ * Maps from one integral or enum value to another at compile time.
+ *
+ * Elements in the list each represent a single mapping from one value to another.
+ *
+ * Key values within a single `type_map` instance must be of the same type.
+ *
+ * @tparam ELEMENT_LIST : Each template argument must be of type `type_util::value_pair`,
+ *                        each of which requires two integral or enum values as it's
+ *                        template parameters.
+ */
+template<class ... ELEMENT_LIST> requires std::conjunction<is_value_pair<ELEMENT_LIST>...>::value
+                                          && are_same_types<decltype(ELEMENT_LIST::first)...>
+                                          && are_unique_values<ELEMENT_LIST::first...>
+                                          && are_same_types<decltype(ELEMENT_LIST::second)...>
+struct type_map<ELEMENT_LIST...>
+{
+
+private:
+
+    static constexpr std::array _key_value_array{ ELEMENT_LIST::first... };
+    static constexpr std::array _item_value_array{ ELEMENT_LIST::second... };
+
+public:
+
+    /**
+     * Returns index of given key
+     */
+    template<auto KEY_VALUE>
+    static constexpr std::size_t key_index = std::distance(_key_value_array.begin(), std::find(_key_value_array.begin(), _key_value_array.end(), KEY_VALUE));
+
+    /**
+     * Get value associate with key
+     */
+    template<auto KEY_VALUE>
+    static constexpr auto at = _item_value_array.at(key_index<KEY_VALUE>);
+};
+
+
+
+/**
+ * Maps from a type to an integral or enum value at compile time.
+ *
+ * Elements in the list each represent a single mapping from one value to another.
+ *
+ * @tparam ELEMENT_LIST : Each template argument must be of type `type_util::is_type_value_pair`,
+ *                        each of which requires a type and a an integral or enum value as it's
+ *                        template parameters.
+ */
+template<class ... ELEMENT_LIST> requires std::conjunction<is_type_value_pair<ELEMENT_LIST>...>::value
+                                          && are_same_types<decltype(ELEMENT_LIST::second)...>
+struct type_map<ELEMENT_LIST...>
+{
+
+private:
+
+    using KEY_TYPE_TUPLE = unique_type_tuple<typename ELEMENT_LIST::first...>;
+    static constexpr std::array _item_value_array{ ELEMENT_LIST::second... };
+
+public:
+
+    /**
+     * Returns index of given key
+     */
+    template<class KEY_TYPE>
+    static constexpr std::size_t key_index = KEY_TYPE_TUPLE::template get_type_index<KEY_TYPE>;
+
+    /**
+     * Get value associate with key
+     */
+    template<class KEY_TYPE>
+    static constexpr auto at = _item_value_array.at(key_index<KEY_TYPE>);
+};
+
+
+/**
  * Maps from an integral or enum value to a type at compile time.
  *
  * Elements in the list each represent a single mapping a value to a type.
@@ -103,32 +179,6 @@ public:
      */
     template<auto KEY_VALUE>
     using at = typename std::tuple_element<key_index<KEY_VALUE>, ITEM_TYPE_TUPLE>::type;
-};
-
-
-template<class ... ELEMENT_LIST> requires std::conjunction<is_type_value_pair<ELEMENT_LIST>...>::value
-                                          && are_same_types<decltype(ELEMENT_LIST::second)...>
-struct type_map<ELEMENT_LIST...>
-{
-
-private:
-
-    using KEY_TYPE_TUPLE = unique_type_tuple<typename ELEMENT_LIST::first...>;
-    static constexpr std::array _item_value_array{ ELEMENT_LIST::second... };
-
-public:
-
-    /**
-     * Returns index of given key
-     */
-    template<class KEY_TYPE>
-    static constexpr std::size_t key_index = KEY_TYPE_TUPLE::template get_type_index<KEY_TYPE>;
-
-    /**
-     * Get value associate with key
-     */
-    template<class KEY_TYPE>
-    static constexpr auto at = _item_value_array.at(key_index<KEY_TYPE>);
 };
 
 
