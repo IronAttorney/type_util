@@ -16,6 +16,9 @@ namespace type_util
 template<auto V_FIRST, class T_SECOND>
 struct value_type_pair
 {
+    constexpr value_type_pair() = default;
+    constexpr ~value_type_pair() = default;
+
     static constexpr auto first = V_FIRST;
     using second = T_SECOND;
 
